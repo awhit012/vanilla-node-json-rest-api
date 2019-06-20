@@ -1,13 +1,10 @@
 const http = require('http');
+const fs = require('fs');
 
 const PORT = process.env.PORT || 5000
 
-const books = [
-	{id: 1, title: "The Teachings of Don Juan", author: "Carlos Casteñeda", pages: 288, status: "complete", currentPage: 288},
-	{id: 2, title: "You Don't Know JavaScript: Up and Going", author: "Kyle Simpson", pages: 87, status: "complete", currentPage: 87},
-	{id: 3, title: "Permaculture: A Designers' Manual", author: "Bill Mollison", pages: 576, status: "toRead", currentPage: 0},
-	{id: 4, title: "Atlantis: Insights from a Lost Civilization", author: "Shirley Andrews", pages: 292, status: "inProgress", currentPage: 96},
-]   
+var books = books || require("./books.json");
+console.log(books)
 
 class BooksController {
 	constructor(request, response) {
@@ -29,6 +26,7 @@ class BooksController {
 		  let id = books.length + 1
 		  body.id = id
 		  books.push(body)
+		  save()
 		});
 
 		this.response.writeHead(200, {
@@ -60,6 +58,7 @@ class BooksController {
 			  	console.log(key, foundBook[key], body[key])
 			  	foundBook[key] = body[key]
 			  })
+			  save()
 			});
 
 			this.response.writeHead(200, {
@@ -150,6 +149,13 @@ const notFound = (response) => {
   	'Content-Type': 'application/json',
 	});
 	response.end();
+}
+
+const save = () => {
+	console.log("saving")
+  fs.writeFile("./books.json", JSON.stringify(books), () => {
+  	console.log("saved")
+  });
 }
 
 
