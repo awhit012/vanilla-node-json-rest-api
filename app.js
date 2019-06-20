@@ -70,6 +70,24 @@ class BooksController {
 
 	}
 
+	delete(bookId) {
+		let foundBook 
+		books.forEach( (book, index) => {
+			// console.log(book, book.id, bookId)
+			if(book.id === bookId) {
+				foundBook = book
+				books.splice(index, 1)
+				this.response.writeHead(200, {
+			  	'Content-Type': 'application/json',
+				});
+				this.response.end(JSON.stringify(books));
+			}
+		})
+		if( !foundBook) {
+			notFound(this.response)
+		}
+	}
+
 	find(bookId) {
 		// console.log(bookId)
 		let foundBook
@@ -108,6 +126,8 @@ class BooksRouter {
 
 				} else if (this.request.method === "PUT") {
 					this.booksController.editOne(bookId)
+				} else if (this.request.method === "DELETE"){
+					this.booksController.delete(bookId)
 				}
 			}
 		}
