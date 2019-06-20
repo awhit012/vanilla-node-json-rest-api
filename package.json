@@ -1,0 +1,8 @@
+{
+  "name": "book-tracker-vanilla-node-api",
+  "description": "a REST API written in node with no libraries",
+  "version": "1.0.0",
+  "engines": {
+    "node": "10.15.1"
+  }
+}
