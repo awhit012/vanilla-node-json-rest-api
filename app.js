@@ -9,12 +9,38 @@ const books = [
 	{id: 4, title: "Atlantis: Insights from a Lost Civilization", author: "Shirley Andrews", pages: 292, status: "inProgress", currentPage: 96},
 ]   
 
+class BooksController {
+	getBooks(response) {
+		response.end(JSON.stringify(books))
+	}
+
+	postBook(request, response) {
+		let body = [];
+		request.on('data', (chunk) => {
+		  body.push(chunk);
+		}).on('end', () => {
+		  body = Buffer.concat(body).toString();
+		  body = JSON.parse(body)
+		  let id = books.length + 1
+		  body.id = id
+		  books.push(body)
+		});
+
+		response.writeHead(200, {
+		  'Content-Type': 'application/json',
+		  'X-Powered-By': 'bacon'
+		});
+		response.end();
+	}
+}
+
 const server = http.createServer((request, response) => { 
-	console.log(request.url)
+  const booksController = new BooksController()
   if (request.url === "/books") {
     if (request.method === "GET") {
-      response.end(JSON.stringify(books))
+      booksController.getBooks(response);
     } else if (request.method === "POST") {
+    	booksController.postBook(request, response);
     } else {
       // others... (PUT, DELETE, etc...)
     } 
@@ -22,5 +48,7 @@ const server = http.createServer((request, response) => {
     // any other route...
   }
 });
+
+
 
 server.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
