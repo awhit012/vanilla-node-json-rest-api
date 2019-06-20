@@ -38,17 +38,48 @@ class BooksController {
 	}
 
 	getOne(bookId) {
-		let foundBook
-		books.forEach( (book) => {
-			if(book.id === bookId) {
-				foundBook = book
-			} 
-		})
+		let foundBook = this.find(bookId)
+		console.log(foundBook)
 		if (foundBook) {
 			this.response.end(JSON.stringify(foundBook))
 		} else {
 			notFound(this.response)
 		}
+	}
+
+	editOne(bookId) {
+		let foundBook = this.find(bookId)
+		if (foundBook) {
+			let body = [];
+			this.request.on('data', (chunk) => {
+			  body.push(chunk);
+			}).on('end', () => {
+			  body = Buffer.concat(body).toString();
+			  body = JSON.parse(body)
+			  Object.keys(body).forEach( (key) => {
+			  	console.log(key, foundBook[key], body[key])
+			  	foundBook[key] = body[key]
+			  })
+			});
+
+			this.response.writeHead(200, {
+			  'Content-Type': 'application/json',
+			});
+			this.response.end();
+		}
+
+	}
+
+	find(bookId) {
+		// console.log(bookId)
+		let foundBook
+		books.forEach( (book) => {
+			// console.log(book, book.id, bookId)
+			if(book.id === bookId) {
+				foundBook = book
+			} 
+		})
+		return foundBook
 	}
 }
 
@@ -72,7 +103,12 @@ class BooksRouter {
 		}	else {
 			let bookId = parseInt(this.request.url.slice(7))
 			if(bookId !== NaN) {
-				this.booksController.getOne(bookId)
+				if (this.request.method === "GET") {
+					this.booksController.getOne(bookId)
+
+				} else if (this.request.method === "PUT") {
+					this.booksController.editOne(bookId)
+				}
 			}
 		}
 	}
