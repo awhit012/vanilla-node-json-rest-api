@@ -10,13 +10,18 @@ const books = [
 ]   
 
 class BooksController {
-	getBooks(response) {
-		response.end(JSON.stringify(books))
+	constructor(request, response) {
+		this.request = request
+		this.response = response
 	}
 
-	postBook(request, response) {
+	getAll() {
+		this.response.end(JSON.stringify(books))
+	}
+
+	post() {
 		let body = [];
-		request.on('data', (chunk) => {
+		this.request.on('data', (chunk) => {
 		  body.push(chunk);
 		}).on('end', () => {
 		  body = Buffer.concat(body).toString();
@@ -26,28 +31,70 @@ class BooksController {
 		  books.push(body)
 		});
 
-		response.writeHead(200, {
+		this.response.writeHead(200, {
 		  'Content-Type': 'application/json',
-		  'X-Powered-By': 'bacon'
 		});
-		response.end();
+		this.response.end();
+	}
+
+	getOne(bookId) {
+		let foundBook
+		books.forEach( (book) => {
+			if(book.id === bookId) {
+				foundBook = book
+			} 
+		})
+		if (foundBook) {
+			this.response.end(JSON.stringify(foundBook))
+		} else {
+			notFound(this.response)
+		}
+	}
+}
+
+class BooksRouter {
+	constructor(request, response) {
+		this.booksController = new BooksController(request, response)
+		this.request = request
+		this.response = response
+		this.handleRequest()
+	}
+
+	handleRequest() {
+		if(this.request.url === "/books") {
+			if (this.request.method === "GET") {
+      	this.booksController.getAll();
+	    } else if (this.request.method === "POST") {
+	    	this.booksController.post();
+	    } else {
+	    	notFound(response)
+	    } 
+		}	else {
+			let bookId = parseInt(this.request.url.slice(7))
+			if(bookId !== NaN) {
+				this.booksController.getOne(bookId)
+			}
+		}
 	}
 }
 
 const server = http.createServer((request, response) => { 
-  const booksController = new BooksController()
-  if (request.url === "/books") {
-    if (request.method === "GET") {
-      booksController.getBooks(response);
-    } else if (request.method === "POST") {
-    	booksController.postBook(request, response);
-    } else {
-      // others... (PUT, DELETE, etc...)
-    } 
+  let baseUrl = request.url.slice(0,6)
+  if ( baseUrl === "/books") {
+  	let booksRouter = new BooksRouter(request, response)
+  	booksRouter.handleRequest()
   } else {
-    // any other route...
+    notFound(response)
   }
 });
+
+const notFound = (response) => {
+	console.log('not found')
+	response.writeHead(404, {
+  	'Content-Type': 'application/json',
+	});
+	response.end();
+}
 
 
 
