@@ -1,6 +1,6 @@
 const http = require('http');
 
-const PORT = 8080;
+const PORT = process.env.PORT || 5000
 
 const books = [
 	{id: 1, title: "The Teachings of Don Juan", author: "Carlos Casteñeda", pages: 288, status: "complete", currentPage: 288},
