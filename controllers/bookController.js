@@ -58,6 +58,7 @@ class BooksController {
 			  	console.log(key, foundBook[key], body[key])
 			  	foundBook[key] = body[key]
 			  })
+			  Books.push(body)
 			  Books.save()
 			});
 
