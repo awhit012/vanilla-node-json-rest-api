@@ -5,6 +5,16 @@ class BooksController {
 		this.error = JSON.stringify({error: "not found"})
 	}
 
+	validate(bookData) {
+		const validatedData = {}
+		Object.keys(Books.schema).forEach( (key) => {
+			if (typeof bookData[key] === Books.schema[key]) {
+				validatedData[key] = bookData[key]
+			}
+		})
+		return validatedData
+	}
+
 	sendError(response) {
 		response.writeHead(404, {
 	  	'Content-Type': 'application/json',
@@ -13,7 +23,7 @@ class BooksController {
 	}	
 
 	getAll(response) {
-		response.end(JSON.stringify(Books))
+		response.end(JSON.stringify(Books.all))
 	}
 
 	post(request, response) {
@@ -23,9 +33,9 @@ class BooksController {
 		}).on('end', () => {
 		  body = Buffer.concat(body).toString();
 		  body = JSON.parse(body)
-		  let id = Books.length + 1
-		  body.id = id
-		  Books.push(body)
+		  let book = this.validate(body)
+		  book.id = Books.all.length + 1
+		  Books.all.push(book)
 		  Books.save()
 		});
 
@@ -53,12 +63,20 @@ class BooksController {
 			  body.push(chunk);
 			}).on('end', () => {
 			  body = Buffer.concat(body).toString();
-			  body = JSON.parse(body)
-			  Object.keys(body).forEach( (key) => {
-			  	console.log(key, foundBook[key], body[key])
-			  	foundBook[key] = body[key]
+			  try {
+			  	body = JSON.parse(body)
+				}
+				catch(error) {
+				  console.error(error);
+				  this.sendError(response)
+				  return
+				}
+				let book = this.validate(body)
+			  Object.keys(book).forEach( (key) => {
+			  	console.log(key, foundBook[key], book[key])
+			  	foundBook[key] = book[key]
 			  })
-			  Books.push(body)
+			  Books.all.push(book)
 			  Books.save()
 			});
 
@@ -74,15 +92,15 @@ class BooksController {
 
 	delete(response, bookId) {
 		let foundBook 
-		Books.forEach( (book, index) => {
+		Books.all.forEach( (book, index) => {
 			// console.log(book, book.id, bookId)
 			if(book.id === bookId) {
 				foundBook = book
-				Books.splice(index, 1)
+				Books.all.splice(index, 1)
 				response.writeHead(200, {
 			  	'Content-Type': 'application/json',
 				});
-				response.end(JSON.stringify(Books));
+				response.end(JSON.stringify(Books.all));
 			}
 		})
 		if( !foundBook) {
@@ -92,7 +110,7 @@ class BooksController {
 
 	find(bookId) {
 		let foundBook
-		Books.forEach( (book) => {
+		Books.all.forEach( (book) => {
 			if(book.id === bookId) {
 				foundBook = book
 			} 
