@@ -1,6 +1,17 @@
 const Books = require('../models/books')
 
 class BooksController {
+	constructor() {
+		this.error = JSON.stringify({error: "not found"})
+	}
+
+	sendError(response) {
+		response.writeHead(404, {
+	  	'Content-Type': 'application/json',
+		});
+		response.end(this.error)
+	}	
+
 	getAll(response) {
 		response.end(JSON.stringify(Books))
 	}
@@ -30,7 +41,7 @@ class BooksController {
 		if (foundBook) {
 			response.end(JSON.stringify(foundBook))
 		} else {
-			return "not found"
+			this.sendError(response)
 		}
 	}
 
@@ -54,6 +65,8 @@ class BooksController {
 			  'Content-Type': 'application/json',
 			});
 			response.end();
+		} else {
+			this.sendError(response)
 		}
 
 	}
@@ -72,7 +85,7 @@ class BooksController {
 			}
 		})
 		if( !foundBook) {
-			return "not found"
+			this.sendError(response)
 		}
 	}
 

@@ -8,7 +8,7 @@ class BooksRouter {
 	    } else if (request.method === "POST") {
 	    	BooksController.post(request, response);
 	    } else {
-	    	return "not found"
+			BooksController.sendError(response)
 	    } 
 		}	else {
 			let bookId = parseInt(request.url.slice(7))
@@ -21,6 +21,8 @@ class BooksRouter {
 				} else if (request.method === "DELETE"){
 					BooksController.delete(response, bookId)
 				}
+			} else {
+				BooksController.sendError(response)
 			}
 		}
 	}
