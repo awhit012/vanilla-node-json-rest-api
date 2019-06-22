@@ -5,6 +5,8 @@ const PORT = process.env.PORT || 5000
 
 
 const server = http.createServer((request, response) => { 
+  response.setHeader('Access-Control-Allow-Origin', null);
+
   let baseUrl = request.url.slice(0,6)
   if ( baseUrl === "/books") {
   	BooksRouter.handleRequest(request, response)
