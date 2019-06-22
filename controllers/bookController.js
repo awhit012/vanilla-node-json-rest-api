@@ -3,6 +3,11 @@ const Books = require('../models/books')
 class BooksController {
 	constructor() {
 		this.error = JSON.stringify({error: "not found"})
+		this.headers = {};
+	  this.headers['Access-Control-Allow-Origin'] = 'http://localhost:3000'
+	  this.headers['Access-Control-Allow-Methods'] = 'GET, POST, PATCH, PUT, DELETE'
+	  this.headers['Access-Control-Allow-Credentials'] = true
+		this.headers['Content-Type'] = 'application/json'
 	}
 
 	validate(bookData) {
@@ -16,13 +21,12 @@ class BooksController {
 	}
 
 	sendError(response) {
-		response.writeHead(404, {
-	  	'Content-Type': 'application/json',
-		});
+  	response.writeHead(404, this.headers);
 		response.end(this.error)
 	}	
 
 	getAll(response) {
+  	response.writeHead(200, this.headers);
 		response.end(JSON.stringify(Books.all))
 	}
 
@@ -38,10 +42,7 @@ class BooksController {
 		  Books.all.push(book)
 		  Books.save()
 		});
-
-		response.writeHead(200, {
-		  'Content-Type': 'application/json',
-		});
+  	response.writeHead(200, this.headers);
 		response.end();
 	}
 
@@ -79,10 +80,7 @@ class BooksController {
 			  Books.all.push(book)
 			  Books.save()
 			});
-
-			response.writeHead(200, {
-			  'Content-Type': 'application/json',
-			});
+  		response.writeHead(200, this.headers);
 			response.end();
 		} else {
 			this.sendError(response)
@@ -97,9 +95,7 @@ class BooksController {
 			if(book.id === bookId) {
 				foundBook = book
 				Books.all.splice(index, 1)
-				response.writeHead(200, {
-			  	'Content-Type': 'application/json',
-				});
+  			response.writeHead(200, this.headers);
 				response.end(JSON.stringify(Books.all));
 			}
 		})
