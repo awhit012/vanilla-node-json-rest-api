@@ -22,9 +22,17 @@ class Books {
 	}
 
 	validate(bookData) {
-		// TODO: make this happen
-		return bookData
-	}
+		let validatedBook = {}
+		let schema = bookSchema()
+		for (key in schema) {
+			// if the type of the bookData matches the schema
+			if(typeof bookData[key] == schema[key]) {
+				// set the validatedBook key to the bookData value
+				validatedBook[key] = bookData[key]
+			}
+		}
+		return validatedBook
+	}	
 
 }
 
