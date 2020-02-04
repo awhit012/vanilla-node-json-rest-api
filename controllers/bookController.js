@@ -12,13 +12,11 @@ class BooksController {
 	}
 
 	sendError(response) {
-		console.log(this.error)
   	response.writeHead(404, this.headers);
 		response.end(JSON.stringify(this.error))
 	}	
 
 	getAll(response) {
-		console.log(this.model.books())
   	response.writeHead(200, this.headers);
 		response.end(JSON.stringify(this.model.books()))
 	}
@@ -31,7 +29,6 @@ class BooksController {
 		  body = Buffer.concat(body).toString();
 		  body = JSON.parse(body)
 		  let book = this.model.validate(body)
-		  console.log(book)
 		  book.id = this.model.books().length + 1
 		  this.model.books().push(book)
 		  this.model.save(this.model.books())
@@ -52,7 +49,6 @@ class BooksController {
 
 	editOne(request, response, bookId) {
 		let foundBook = this.find(bookId)
-		console.log("foundBook:", foundBook)
 		if (foundBook.book) {
 			let body = [];
 			request.on('data', (chunk) => {
@@ -69,13 +65,8 @@ class BooksController {
 				  return
 				}
 				let validatedData = this.model.validate(body)
-			  console.log("valid data", validatedData)
-			  console.log("book inded", foundBook.index)
-			  console.log("book in array before", this.model.books()[foundBook.index])
 			  this.model.books()[foundBook.index] = validatedData
-			  console.log("book in array after", this.model.books()[foundBook.index])
 			  this.model.save(this.model.books())
-			  console.log('books after', this.model.books())
 			});
 			response.writeHead(200, this.headers);
 			response.end();
@@ -87,9 +78,7 @@ class BooksController {
 	}
 
 	delete(response, bookId) {
-		console.log("in delete. ID:", bookId)
 		let foundBook = this.find(bookId)
-		console.log(foundBook)
 		if( !foundBook.book) {
 			this.sendError(response)
 			return
@@ -103,7 +92,6 @@ class BooksController {
 	find(bookId) {
 		let foundBook
 		let bookIndex
-		console.log('in find. ID:', bookId)
 		this.model.books().forEach( (book, index) => {
 			if(book.id == bookId) {
 				foundBook = book
